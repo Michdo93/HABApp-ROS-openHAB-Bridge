@@ -178,3 +178,18 @@ sudo chown +x openhab_bridge.py
 ```
 
 Please make sure that in `/etc/openhab/habapp/config.yml` the connection is set to your openHAB instance!
+
+### Install the openHAB Bridge Publisher and Subscriber for testing
+
+The [openHAB Bridge Publisher](https://github.com/Michdo93/openhab_bridge_publisher) publishes commands to openhab using the bridge between openHAB and ROS.
+The [openHAB Bridge Subscriber](https://github.com/Michdo93/openhab_bridge_subscriber) subscribes states from openhab using a bridge between openHAB and ROS.
+
+```
+cd ~/catkin_ws/src
+git https://github.com/Michdo93/openhab_bridge_publisher
+git clone https://github.com/Michdo93/openhab_bridge_subscriber
+cd ~/catkin_ws
+catkin_make
+```
+
+In a real scenario you have to run ROS over [multiple machines](http://wiki.ros.org/ROS/Tutorials/MultipleMachines). As example one machine is your `openHAB Server` and another machine is your robot.
