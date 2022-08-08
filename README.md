@@ -186,7 +186,7 @@ The [openHAB Bridge Subscriber](https://github.com/Michdo93/openhab_bridge_subsc
 
 ```
 cd ~/catkin_ws/src
-git https://github.com/Michdo93/openhab_bridge_publisher
+git clone https://github.com/Michdo93/openhab_bridge_publisher
 git clone https://github.com/Michdo93/openhab_bridge_subscriber
 cd ~/catkin_ws
 catkin_make
