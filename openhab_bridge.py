@@ -83,14 +83,14 @@ class OpenHABBridge(HABApp.Rule):
         msg = ColorState()
 
         if value is None or value == "NULL":
-            msg.r = 0
-            msg.g = 0
-            msg.b = 0
+            msg.hue = 0
+            msg.saturation = 0
+            msg.brightness = 0
         else:
             log.info("is ColorItem")
-            msg.r = float(value[0])
-            msg.g = float(value[1])
-            msg.b = float(value[2])
+            msg.hue = int(value[0])
+            msg.saturation = int(value[1])
+            msg.brightness = int(value[2])
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ColorState, queue_size=1)
