@@ -80,11 +80,17 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is ColorItem")
         msg = ColorState()
-        msg.r = float(value[0])
-        msg.g = float(value[1])
-        msg.b = float(value[2])
+
+        if value is None or value == "NULL":
+            msg.r = 0
+            msg.g = 0
+            msg.b = 0
+        else:
+            log.info("is ColorItem")
+            msg.r = float(value[0])
+            msg.g = float(value[1])
+            msg.b = float(value[2])
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ColorState, queue_size=1)
@@ -123,12 +129,17 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is ContactItem")
         msg = ContactState()
-        if value == "OPEN":
-            msg.state = ContactState.OPEN
-        elif value == "CLOSED":
-            msg.state = ContactState.CLOSED
+
+        if value is None or value == "NULL":
+            msg.state = "NULL"
+        else:
+            log.info("is ContactItem")
+
+            if value == "OPEN":
+                msg.state = ContactState.OPEN
+            elif value == "CLOSED":
+                msg.state = ContactState.CLOSED
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ContactState, queue_size=1)
@@ -167,10 +178,14 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is DatetimeItem")
         msg = DateTimeState()
-        msg.state = rospy.Time.from_sec(parser.parse(
-            str(value)).replace(tzinfo=timezone.utc).timestamp())
+
+        if value is None or value == "NULL":
+            msg.state = 0
+        else:
+            log.info("is DatetimeItem")
+            msg.state = rospy.Time.from_sec(parser.parse(
+                str(value)).replace(tzinfo=timezone.utc).timestamp())
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', DateTimeState, queue_size=1)
@@ -209,10 +224,15 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is DimmerItem")
         msg = DimmerState()
-        if 0 <= value <= 100:
-            msg.state = int(value)
+
+        if value is None or value == "NULL":
+            msg.state = 0
+        else:
+            log.info("is DimmerItem")
+
+            if 0 <= value <= 100:
+                msg.state = int(value)
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', DimmerState, queue_size=1)
@@ -250,6 +270,9 @@ class OpenHABBridge(HABApp.Rule):
     def GroupState(self, event: ItemStateEvent):
         item = event.name
         value = event.value
+
+        if value is None or value == "NULL":
+            value = "NULL"
 
         log.info("is GroupItem")
         msg = GroupState()
@@ -291,17 +314,23 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is ImageItem")
         msg = ImageState()
-        b64_bytes = base64.b64encode(value)
-        b64_string = b64_bytes.decode()
-        img = imread(io.BytesIO(base64.b64decode(b64_string)))
-        cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        bridge = CvBridge()
-        a = Image()
-        a = bridge.cv2_to_imgmsg(
-            cv2_img, encoding="passthrough")
+        if value is None or value == "NULL":
+            msg.state = 0
+        else:
+            log.info("is ImageItem")
+
+            b64_bytes = base64.b64encode(value)
+            b64_string = b64_bytes.decode()
+            img = imread(io.BytesIO(base64.b64decode(b64_string)))
+            cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+            bridge = CvBridge()
+            a = Image()
+            a = bridge.cv2_to_imgmsg(
+                cv2_img, encoding="passthrough")
+            msg.state = a
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ImageState, queue_size=1)
@@ -340,12 +369,19 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is LocationItem")
         msg = LocationState()
-        splitted = value.split(",")
-        msg.latitude = float(splitted[0])
-        msg.longitude = float(splitted[1])
-        msg.altitude = float(splitted[2])
+
+        if value is None or value == "NULL":
+            msg.latitude = 0
+            msg.longitude = 0
+            msg.altitude = 0
+        else:
+            log.info("is LocationItem")
+
+            splitted = value.split(",")
+            msg.latitude = float(splitted[0])
+            msg.longitude = float(splitted[1])
+            msg.altitude = float(splitted[2])
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', LocationState, queue_size=1)
@@ -384,15 +420,17 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is NumberItem")
         msg = NumberState()
-        msg.state = float(value)
+
+        if value is None or value == "NULL":
+            msg.state = 0
+        else:
+            log.info("is NumberItem")
+
+            msg.state = float(value)
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', NumberState, queue_size=1)
-
-        pub = rospy.Publisher(
-            f'/openhab/items/{item}/state', SwitchState, queue_size=1)
 
         for my_item in self.get_items(name=item):
             item_type = my_item
@@ -428,20 +466,25 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is PlayerItem")
         msg = PlayerState()
-        if value == "PLAY":
-            msg.state = PlayerState.PLAY
-        elif value == "PAUSE":
-            msg.state = PlayerState.PAUSE
-        elif value == "NEXT":
-            msg.state = PlayerState.NEXT
-        elif value == "PREVIOUS":
-            msg.state = PlayerState.PREVIOUS
-        elif value == "REWIND":
-            msg.state = PlayerState.REWIND
-        elif value == "FASTFORWARD":
-            msg.state = PlayerState.FASTFORWARD
+
+        if value is None or value == "NULL":
+            msg.state = "NULL"
+        else:
+            log.info("is PlayerItem")
+
+            if value == "PLAY":
+                msg.state = PlayerState.PLAY
+            elif value == "PAUSE":
+                msg.state = PlayerState.PAUSE
+            elif value == "NEXT":
+                msg.state = PlayerState.NEXT
+            elif value == "PREVIOUS":
+                msg.state = PlayerState.PREVIOUS
+            elif value == "REWIND":
+                msg.state = PlayerState.REWIND
+            elif value == "FASTFORWARD":
+                msg.state = PlayerState.FASTFORWARD
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', PlayerState, queue_size=1)
@@ -480,26 +523,36 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is RollershutterItem")
         msg = RollershutterState()
-        if isinstance(value, int):
+
+        if value is None or value == "NULL":
+            msg.state = "NULL"
             msg.isstate = False
-            msg.ispercentage = True
-
-            if 0 <= value <= 100:
-                msg.state = int(value)
-        elif isinstance(value, str):
-            msg.isstate = True
             msg.ispercentage = False
+            msg.percentage = 0
+        else:
+            log.info("is RollershutterItem")
 
-            if value == "UP":
-                msg.state = RollershutterState.PLAY
-            elif value == "DOWN":
-                msg.state = RollershutterState.PAUSE
-            elif value == "STOP":
-                msg.state = RollershutterState.NEXT
-            elif value == "MOVE":
-                msg.state = RollershutterState.PREVIOUS
+            if isinstance(value, int):
+                msg.isstate = False
+                msg.state = "NULL"
+                msg.ispercentage = True
+
+                if 0 <= value <= 100:
+                    msg.percentage = int(value)
+            elif isinstance(value, str):
+                msg.isstate = True
+                msg.ispercentage = False
+                msg.percentage = 0
+
+                if value == "UP":
+                    msg.state = RollershutterState.PLAY
+                elif value == "DOWN":
+                    msg.state = RollershutterState.PAUSE
+                elif value == "STOP":
+                    msg.state = RollershutterState.NEXT
+                elif value == "MOVE":
+                    msg.state = RollershutterState.PREVIOUS
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', RollershutterState, queue_size=1)
@@ -537,6 +590,9 @@ class OpenHABBridge(HABApp.Rule):
     def StringState(self, event: ItemStateEvent):
         item = event.name
         value = event.value
+
+        if value is None or value == "NULL":
+            value = "NULL"
 
         log.info("is StringItem")
         msg = StringState()
@@ -578,12 +634,17 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        log.info("is SwitchItem")
         msg = SwitchState()
-        if value == "ON":
-            msg.state = SwitchState.ON
-        elif value == "OFF":
-            msg.state = SwitchState.OFF
+
+        if value is None or value == "NULL":
+            msg.state = "NULL"
+        else:
+            log.info("is SwitchItem")
+
+            if value == "ON":
+                msg.state = SwitchState.ON
+            elif value == "OFF":
+                msg.state = SwitchState.OFF
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', SwitchState, queue_size=1)
