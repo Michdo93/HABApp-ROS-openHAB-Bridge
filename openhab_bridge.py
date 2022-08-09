@@ -423,7 +423,7 @@ class OpenHABBridge(HABApp.Rule):
         msg = NumberState()
 
         if value is None or value == "NULL":
-            msg.state = 0
+            msg.state = float(0)
         else:
             log.info("is NumberItem")
 
@@ -776,7 +776,7 @@ class OpenHABBridge(HABApp.Rule):
     def NumberCallback(self, data):
         item = data.item
 
-        if isinstance(data.number, float):
+        if isinstance(data.command, float):
             value = data.command
 
         rospy.loginfo(
