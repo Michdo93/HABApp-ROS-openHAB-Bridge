@@ -113,8 +113,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -157,8 +157,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -199,8 +199,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -241,8 +241,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -281,8 +281,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -330,8 +330,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -374,8 +374,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -418,8 +418,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -470,8 +470,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -528,8 +528,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -568,8 +568,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
@@ -612,8 +612,8 @@ class OpenHABBridge(HABApp.Rule):
             connections = pub.get_num_connections()
             if connections > 0:
                 rospy.loginfo(
-                    f'Published ROS topic /openhab/state/{item} with {value}')
-                # pub.publish(msg)
+                    f'Published ROS topic /openhab/items/{item}/state with {value}')
+                pub.publish(msg)
                 counter = counter + 1
             else:
                 rate.sleep()
