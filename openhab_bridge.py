@@ -546,13 +546,13 @@ class OpenHABBridge(HABApp.Rule):
                 msg.percentage = 0
 
                 if value == "UP":
-                    msg.state = RollershutterState.PLAY
+                    msg.state = RollershutterState.UP
                 elif value == "DOWN":
-                    msg.state = RollershutterState.PAUSE
+                    msg.state = RollershutterState.DOWN
                 elif value == "STOP":
-                    msg.state = RollershutterState.NEXT
+                    msg.state = RollershutterState.STOP
                 elif value == "MOVE":
-                    msg.state = RollershutterState.PREVIOUS
+                    msg.state = RollershutterState.MOVE
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', RollershutterState, queue_size=1)
