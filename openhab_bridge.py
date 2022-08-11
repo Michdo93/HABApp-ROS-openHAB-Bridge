@@ -17,6 +17,7 @@ import cv2
 from imageio import imread
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+import numpy as np
 
 log = logging.getLogger('openhab_bridge')
 log_state = Parameter('openhab_bridge', 'log_state', default_value=True).value
@@ -328,11 +329,7 @@ class OpenHABBridge(HABApp.Rule):
 
         if value is None:
             msg.isnull = True
-
-            b64_bytes = base64.b64encode("/0000")
-            b64_string = b64_bytes.decode()
-            img = imread(io.BytesIO(base64.b64decode(b64_string)))
-            cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            cv2_img = np.zeros((100,100,3), np.uint8)
 
             bridge = CvBridge()
             converted = Image()
