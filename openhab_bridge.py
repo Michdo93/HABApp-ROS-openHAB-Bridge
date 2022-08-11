@@ -82,15 +82,17 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = ColorState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.hue = 0
             msg.saturation = 0
             msg.brightness = 0
+            msg.isnull = True
         else:
             log.info("is ColorItem")
             msg.hue = int(value[0])
             msg.saturation = int(value[1])
             msg.brightness = int(value[2])
+            msg.isnull = False
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ColorState, queue_size=1)
@@ -131,10 +133,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = ContactState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = "NULL"
+            msg.isnull = True
         else:
             log.info("is ContactItem")
+            msg.isnull = False
 
             if value == "OPEN":
                 msg.state = ContactState.OPEN
@@ -180,10 +184,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = DateTimeState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = 0
+            msg.isnull = True
         else:
             log.info("is DatetimeItem")
+            msg.isnull = False
             msg.state = rospy.Time.from_sec(parser.parse(
                 str(value)).replace(tzinfo=timezone.utc).timestamp())
 
@@ -226,10 +232,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = DimmerState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = 0
+            msg.isnull = True
         else:
             log.info("is DimmerItem")
+            msg.isnull = False
 
             if 0 <= value <= 100:
                 msg.state = int(value)
@@ -271,11 +279,13 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        if value is None or value == "NULL":
-            value = "NULL"
-
-        log.info("is GroupItem")
         msg = GroupState()
+
+        if value is None:
+            msg.isnull = True
+        else:
+            log.info("is GroupItem")
+            msg.isnull = False
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', GroupState, queue_size=1)
@@ -316,10 +326,22 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = ImageState()
 
-        if value is None or value == "NULL":
-            msg.state = 0
+        if value is None:
+            msg.isnull = True
+
+            b64_bytes = base64.b64encode("/0000")
+            b64_string = b64_bytes.decode()
+            img = imread(io.BytesIO(base64.b64decode(b64_string)))
+            cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+            bridge = CvBridge()
+            converted = Image()
+            converted = bridge.cv2_to_imgmsg(
+                cv2_img, encoding="passthrough")
+            msg.state = converted
         else:
             log.info("is ImageItem")
+            msg.isnull = False
 
             b64_bytes = base64.b64encode(value)
             b64_string = b64_bytes.decode()
@@ -327,10 +349,10 @@ class OpenHABBridge(HABApp.Rule):
             cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
             bridge = CvBridge()
-            a = Image()
-            a = bridge.cv2_to_imgmsg(
+            converted = Image()
+            converted = bridge.cv2_to_imgmsg(
                 cv2_img, encoding="passthrough")
-            msg.state = a
+            msg.state = converted
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ImageState, queue_size=1)
@@ -371,12 +393,14 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = LocationState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.latitude = 0
             msg.longitude = 0
             msg.altitude = 0
+            msg.isnull = True
         else:
             log.info("is LocationItem")
+            msg.isnull = False
 
             splitted = value.split(",")
             msg.latitude = float(splitted[0])
@@ -422,10 +446,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = NumberState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = float(0)
+            msg.isnull = True
         else:
             log.info("is NumberItem")
+            msg.isnull = False
 
             msg.state = float(value)
 
@@ -468,10 +494,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = PlayerState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = "NULL"
+            msg.isnull = True
         else:
             log.info("is PlayerItem")
+            msg.isnull = False
 
             if value == "PLAY":
                 msg.state = PlayerState.PLAY
@@ -530,8 +558,10 @@ class OpenHABBridge(HABApp.Rule):
             msg.isstate = False
             msg.ispercentage = False
             msg.percentage = 0
+            msg.isnull = True
         else:
             log.info("is RollershutterItem")
+            msg.isnull = False
 
             if isinstance(value, int):
                 msg.isstate = False
@@ -591,12 +621,16 @@ class OpenHABBridge(HABApp.Rule):
         item = event.name
         value = event.value
 
-        if value is None or value == "NULL":
-            value = "NULL"
-
-        log.info("is StringItem")
         msg = StringState()
-        msg.state = str(value)
+
+        if value is None:
+            value = "NULL"
+            msg.isnull = True
+        else:
+            log.info("is StringItem")
+            msg.isnull = False
+            msg.state = str(value)
+
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', StringState, queue_size=1)
 
@@ -636,10 +670,12 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = SwitchState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = "NULL"
+            msg.isnull = True
         else:
             log.info("is SwitchItem")
+            msg.isnull = False
 
             if value == "ON":
                 msg.state = SwitchState.ON
@@ -693,6 +729,9 @@ class OpenHABBridge(HABApp.Rule):
         elif data.ishsb == True:
             value = (data.hue, data.saturation, data.brightness)
 
+        if data.isnull == True:
+            value = None
+
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
@@ -706,6 +745,9 @@ class OpenHABBridge(HABApp.Rule):
         if data.command == ContactCommand.OPEN or data.command == ContactCommand.CLOSED:
             value = data.command
 
+        if data.isnull == True:
+            value = None
+
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
@@ -715,8 +757,12 @@ class OpenHABBridge(HABApp.Rule):
 
     def DateTimeCallback(self, data):
         item = data.item
-        value = datetime.utcfromtimestamp(
-            data.command.to_sec()).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        if data.isnull == True:
+            value = None
+        else:
+            value = datetime.utcfromtimestamp(
+                data.command.to_sec()).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
@@ -735,6 +781,9 @@ class OpenHABBridge(HABApp.Rule):
             if 0 <= data.percentage <= 100:
                 value = data.percentage
 
+        if data.isnull == True:
+            value = None
+
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
@@ -745,13 +794,16 @@ class OpenHABBridge(HABApp.Rule):
     def ImageCallback(self, data):
         item = data.item
 
-        bridge = CvBridge()
-        cv_image = bridge.imgmsg_to_cv2(
-            data.command, desired_encoding='passthrough')
+        if data.isnull == True:
+            value = None
+        else:
+            bridge = CvBridge()
+            cv_image = bridge.imgmsg_to_cv2(
+                data.command, desired_encoding='passthrough')
 
-        retval, buffer = cv2.imencode('.jpg', cv_image)
-        value = "data:image/jpg;base64" + \
-            base64.b64encode(buffer).decode("utf-8")
+            retval, buffer = cv2.imencode('.jpg', cv_image)
+            value = "data:image/jpg;base64" + \
+                base64.b64encode(buffer).decode("utf-8")
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
@@ -763,8 +815,11 @@ class OpenHABBridge(HABApp.Rule):
     def LocationCallback(self, data):
         item = data.item
 
-        value = str(data.latitude) + "," + \
-            str(data.longitude) + "," + str(data.altitude)
+        if data.isnull == True:
+            value = None
+        else:
+            value = str(data.latitude) + "," + \
+                str(data.longitude) + "," + str(data.altitude)
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
@@ -776,8 +831,10 @@ class OpenHABBridge(HABApp.Rule):
     def NumberCallback(self, data):
         item = data.item
 
-        if isinstance(data.command, float):
-            value = data.command
+        if data.isnull == True:
+            value = None
+        else:
+            value = float(data.command)
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
@@ -791,6 +848,9 @@ class OpenHABBridge(HABApp.Rule):
 
         if data.command == PlayerCommand.PLAY or data.command == PlayerCommand.PAUSE or data.command == PlayerCommand.NEXT or data.command == PlayerCommand.PREVIOUS or data.command == PlayerCommand.REWIND or data.command == PlayerCommand.FASTFORWARD:
             value = data.command
+
+        if data.isnull == True:
+            value = None
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
@@ -809,6 +869,9 @@ class OpenHABBridge(HABApp.Rule):
             if 0 <= data.percentage <= 100:
                 value = data.percentage
 
+        if data.isnull == True:
+            value = None
+
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
@@ -822,6 +885,9 @@ class OpenHABBridge(HABApp.Rule):
         if isinstance(data.command, str):
             value = data.command
 
+        if data.isnull == True:
+            value = None
+
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
@@ -834,6 +900,11 @@ class OpenHABBridge(HABApp.Rule):
 
         if data.command == SwitchCommand.ON or data.command == SwitchCommand.OFF:
             value = data.command
+        else:
+            value = None
+
+        if data.isnull == True:
+            value = None
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
