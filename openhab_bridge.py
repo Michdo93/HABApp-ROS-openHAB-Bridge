@@ -15,7 +15,7 @@ import base64
 import io
 import cv2
 from imageio import imread
-from cv_bridge import CvBridge
+from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 import numpy as np
 
@@ -330,12 +330,6 @@ class OpenHABBridge(HABApp.Rule):
         if value is None:
             msg.isnull = True
             cv2_img = np.zeros((100,100,3), np.uint8)
-
-            bridge = CvBridge()
-            converted = Image()
-            converted = bridge.cv2_to_imgmsg(
-                cv2_img, encoding="passthrough")
-            msg.state = converted
         else:
             log.info("is ImageItem")
             msg.isnull = False
@@ -343,13 +337,21 @@ class OpenHABBridge(HABApp.Rule):
             b64_bytes = base64.b64encode(value)
             b64_string = b64_bytes.decode()
             img = imread(io.BytesIO(base64.b64decode(b64_string)))
+            height, width, channels = img.shape
+
+            rospy.loginfo("Got image with height %s, width %s and channels %s" % (height, width, channels))
+
+            # finally convert RGB image to BGR for opencv
             cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-            bridge = CvBridge()
-            converted = Image()
-            converted = bridge.cv2_to_imgmsg(
-                cv2_img, encoding="passthrough")
-            msg.state = converted
+        bridge = CvBridge()
+
+        try:
+            converted = bridge.cv2_to_imgmsg(cv2_img, 'bgr8')
+        except CvBridgeError as e:
+            print(e)
+
+        msg.state = converted
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', ImageState, queue_size=1)
