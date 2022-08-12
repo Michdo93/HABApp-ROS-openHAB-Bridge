@@ -550,7 +550,7 @@ class OpenHABBridge(HABApp.Rule):
 
         msg = RollershutterState()
 
-        if value is None or value == "NULL":
+        if value is None:
             msg.state = "NULL"
             msg.isstate = False
             msg.ispercentage = False
