@@ -750,7 +750,8 @@ class OpenHABBridge(HABApp.Rule):
         log.info(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
 
-        self.oh.send_command(item, value)
+        #self.oh.send_command(item, value)
+        self.oh.post_update(item, value)
 
     def DateTimeCallback(self, data):
         item = data.item
