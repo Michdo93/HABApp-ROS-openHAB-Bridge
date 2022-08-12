@@ -566,7 +566,7 @@ class OpenHABBridge(HABApp.Rule):
                 msg.ispercentage = True
 
                 if 0 <= value <= 100:
-                    msg.percentage = int(value)
+                    msg.percentage = value
             elif isinstance(value, str):
                 msg.isstate = True
                 msg.ispercentage = False
