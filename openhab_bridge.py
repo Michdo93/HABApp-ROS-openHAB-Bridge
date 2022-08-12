@@ -450,7 +450,7 @@ class OpenHABBridge(HABApp.Rule):
             log.info("is NumberItem")
             msg.isnull = False
 
-            msg.state = float(value)
+            msg.state = value
 
         pub = rospy.Publisher(
             f'/openhab/items/{item}/state', NumberState, queue_size=1)
