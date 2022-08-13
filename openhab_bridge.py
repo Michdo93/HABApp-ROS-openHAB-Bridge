@@ -329,15 +329,23 @@ class OpenHABBridge(HABApp.Rule):
 
         if value is None:
             msg.isnull = True
-            cv2_img = np.zeros((100,100,3), np.uint8)
+            cv2_img = numpy.zeros([200,200,3])
+
+            cv2_img[:,:,0] = numpy.ones([200,200])*255
+            cv2_img[:,:,1] = numpy.ones([200,200])*255
+            cv2_img[:,:,2] = numpy.ones([200,200])*0
         else:
             log.info("is ImageItem")
             msg.isnull = False
 
-            b64_bytes = base64.b64encode(value)
-            b64_string = b64_bytes.decode()
-            img = imread(io.BytesIO(base64.b64decode(b64_string)))
-            height, width, channels = img.shape
+            if isinstance(value, bytes):
+                img_bytes = value
+            else:
+                img_bytes = eval(value)
+
+            # reconstruct image as an numpy array
+            cv2_img = imread(io.BytesIO(img_bytes))
+            height, width, channels = cv2_img.shape
 
             rospy.loginfo("Got image with height %s, width %s and channels %s" % (height, width, channels))
 
