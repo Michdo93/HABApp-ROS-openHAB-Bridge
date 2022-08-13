@@ -810,8 +810,7 @@ class OpenHABBridge(HABApp.Rule):
                 data.command, desired_encoding='passthrough')
 
             retval, buffer = cv2.imencode('.jpg', cv_image)
-            value = "data:image/jpg;base64" + \
-                base64.b64encode(buffer).decode("utf-8")
+            value = "data:image/jpg;base64" + str(buffer.tobytes())
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
