@@ -329,11 +329,11 @@ class OpenHABBridge(HABApp.Rule):
 
         if value is None:
             msg.isnull = True
-            cv2_img = numpy.zeros([200,200,3])
+            cv2_img = np.zeros([200,200,3])
 
-            cv2_img[:,:,0] = numpy.ones([200,200])*255
-            cv2_img[:,:,1] = numpy.ones([200,200])*255
-            cv2_img[:,:,2] = numpy.ones([200,200])*0
+            cv2_img[:,:,0] = np.ones([200,200])*255
+            cv2_img[:,:,1] = np.ones([200,200])*255
+            cv2_img[:,:,2] = np.ones([200,200])*0
         else:
             log.info("is ImageItem")
             msg.isnull = False
