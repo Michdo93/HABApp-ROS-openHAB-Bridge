@@ -77,18 +77,26 @@ To make `HABApp` run after reboot you have to create a service file with `sudo n
 [Unit]
 Description=HABApp
 Documentation=https://habapp.readthedocs.io
-After=network-online.target
+Requires=openhab.service
+After=openhab.service
+BindsTo=openhab.service
+PartOf=openhab.service
 
 [Service]
 Type=simple
 User=openhab
 Group=openhab
 UMask=002
-ExecStart=/opt/habapp/bin/habapp -c /etc/openhab/habapp
+Environment=LD_LIBRARY_PATH=/home/<user>/catkin_ws/devel/lib:/opt/ros/<ros_distro>/lib
+ExecStart=/bin/bash -c 'source /etc/environment; /usr/bin/python3 /opt/habapp/bin/habapp -c /etc/openhab/habapp'
+Restart=on-failure
+RestartSec=30s
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=openhab.service
 ```
+
+Make sure that your replace `<user>` with the username on which account you have installed your `catkin_ws`. Also you hat to change the `<ros_distro>` to the actual ros distro you are using.
 
 And then enable it with:
 
