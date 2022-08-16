@@ -2,7 +2,9 @@ import logging
 import HABApp
 from HABApp import Parameter
 from HABApp.core.events import ValueChangeEvent, ValueUpdateEvent
+from HABApp.core.events import ValueChangeEventFilter, ValueUpdateEventFilter
 from HABApp.openhab.events import ItemStateEvent
+from HABApp.openhab.events import ItemStateEventFilter
 from HABApp.core.items import Item
 from HABApp.openhab.items import OpenhabItem
 from HABApp.openhab.items import ColorItem, ContactItem, DatetimeItem, DimmerItem, GroupItem, ImageItem, LocationItem, NumberItem, PlayerItem, RollershutterItem, StringItem, SwitchItem
@@ -14,7 +16,8 @@ from datetime import datetime, timezone
 import base64
 import io
 import cv2
-from imageio import imread
+#from imageio import imread
+from imageio.v2 import imread
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 import numpy as np
@@ -27,51 +30,53 @@ class OpenHABBridge(HABApp.Rule):
     def __init__(self):
         super().__init__()
 
+        self.bridge = CvBridge()
+
         for item in self.get_items(type=OpenhabItem):
             if type(item) is ColorItem:
-                item.listen_event(self.ColorState, ItemStateEvent)
+                item.listen_event(self.ColorState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', ColorCommand, self.ColorCallback)
             elif type(item) is ContactItem:
-                item.listen_event(self.ContactState, ItemStateEvent)
+                item.listen_event(self.ContactState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', ContactCommand, self.ContactCallback)
             elif type(item) is DatetimeItem:
-                item.listen_event(self.DateTimeState, ItemStateEvent)
+                item.listen_event(self.DateTimeState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', DateTimeCommand, self.DateTimeCallback)
             elif type(item) is GroupItem:
-                item.listen_event(self.GroupState, ItemStateEvent)
+                item.listen_event(self.GroupState, ItemStateEventFilter())
             elif type(item) is DimmerItem:
-                item.listen_event(self.DimmerState, ItemStateEvent)
+                item.listen_event(self.DimmerState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', DimmerCommand, self.DimmerCallback)
             elif type(item) is ImageItem:
-                item.listen_event(self.ImageState, ItemStateEvent)
+                item.listen_event(self.ImageState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', ImageCommand, self.ImageCallback)
             elif type(item) is LocationItem:
-                item.listen_event(self.LocationState, ItemStateEvent)
+                item.listen_event(self.LocationState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', LocationCommand, self.LocationCallback)
             elif type(item) is NumberItem:
-                item.listen_event(self.NumberState, ItemStateEvent)
+                item.listen_event(self.NumberState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', NumberCommand, self.NumberCallback)
             elif type(item) is PlayerItem:
-                item.listen_event(self.PlayerState, ItemStateEvent)
+                item.listen_event(self.PlayerState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', PlayerCommand, self.PlayerCallback)
             elif type(item) is RollershutterItem:
-                item.listen_event(self.RollershutterState, ItemStateEvent)
+                item.listen_event(self.RollershutterState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', RollershutterCommand, self.RollershutterCallback)
             elif type(item) is StringItem:
-                item.listen_event(self.StringState, ItemStateEvent)
+                item.listen_event(self.StringState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', StringCommand, self.StringCallback)
             elif type(item) is SwitchItem:
-                item.listen_event(self.SwitchState, ItemStateEvent)
+                item.listen_event(self.SwitchState, ItemStateEventFilter())
                 rospy.Subscriber(
                     f'/openhab/items/{item.name}/command', SwitchCommand, self.SwitchCallback)
 
@@ -328,6 +333,7 @@ class OpenHABBridge(HABApp.Rule):
         msg = ImageState()
 
         if value is None:
+            log.info("numpy null image")
             msg.isnull = True
             cv2_img = np.zeros((100,100,3), dtype=np.uint8)
         else:
@@ -339,21 +345,22 @@ class OpenHABBridge(HABApp.Rule):
             else:
                 img_bytes = eval(value)
 
+            log.info(img_bytes)
+
             # reconstruct image as an numpy array
             cv2_img = imread(io.BytesIO(img_bytes))
             height, width, channels = cv2_img.shape
 
-            rospy.loginfo("Got image with height %s, width %s and channels %s" % (height, width, channels))
+            log.info("Got image with height %s, width %s and channels %s" % (height, width, channels))
+            #rospy.loginfo("Got image with height %s, width %s and channels %s" % (height, width, channels))
 
             # finally convert RGB image to BGR for opencv
-            cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-        bridge = CvBridge()
-
+            cv2_img = cv2.cvtColor(cv2_img, cv2.COLOR_RGB2BGR)
+        
         try:
-            converted = bridge.cv2_to_imgmsg(cv2_img, 'bgr8')
+            converted = self.bridge.cv2_to_imgmsg(cv2_img, 'bgr8')
         except CvBridgeError as e:
-            print(e)
+            log.info(e)
 
         msg.state = converted
 
@@ -389,6 +396,7 @@ class OpenHABBridge(HABApp.Rule):
                 counter = counter + 1
             else:
                 rate.sleep()
+        
 
     def LocationState(self, event: ItemStateEvent):
         item = event.name
@@ -801,19 +809,20 @@ class OpenHABBridge(HABApp.Rule):
         if data.isnull == True:
             value = None
         else:
-            bridge = CvBridge()
-            cv_image = bridge.imgmsg_to_cv2(
-                data.command, desired_encoding='passthrough')
+            cv_image = self.bridge.imgmsg_to_cv2(
+                data.command, "bgr8")
 
             retval, buffer = cv2.imencode('.jpg', cv_image)
-            value = "data:image/jpg;base64" + str(buffer.tobytes())
+            value = buffer.tobytes()
 
         rospy.loginfo(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
         log.info(
             f'{rospy.get_caller_id()} Subscribed ROS topic /openhab/items/{item}/command with {value}')
 
-        self.oh.post_update(item, value)
+        #self.oh.post_update(item, value)
+        image = ImageItem(item)
+        image.oh_post_update(value)
 
     def LocationCallback(self, data):
         item = data.item
