@@ -201,3 +201,17 @@ catkin_make
 ```
 
 In a real scenario you have to run ROS over [multiple machines](http://wiki.ros.org/ROS/Tutorials/MultipleMachines). As example one machine is your `openHAB Server` and another machine is your robot.
+
+# Troubleshooting
+
+If some packages could not find please edit the `/etc/environment` to something like this:
+
+```
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$ROS_ROOT:/home/<user>/.local/bin"
+JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+ROS_HOME="/home/<user>/.ros"
+ROS_LOG_DIR=$ROS_HOME/log
+export PYTHONPATH=$PYTHONPATH:/usr/lib/python3.8/site-packages:/usr/lib/python3/dist-packages:/opt/ros/<ros_distro>/lib/python3/dist-packages:/core/roslib/src:/opt/habapp/bin:/opt/habapp/lib/python3.8/site-packages:/home/<user>/catkin_ws/devel/lib/python3/dist-packages:/home/<user>/.local/lib/python3.8/site-packages:/usr/local/lib/python3.8/dist-packages
+```
+
+Please edit `<ros-distro>` to your ROS distribution and `<user>` to the username of your user.
