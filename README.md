@@ -3,7 +3,7 @@ A bridge between openHAB and ROS using HABApp
 
 ## Preparations
 
-You have to make sure that ROS, openHAB and HABApp are installed on one and the same system.
+You have to make sure that ROS, openHAB and HABApp are installed on one and the same network.
 
 ### Install openHAB on Ubuntu Linux
 
